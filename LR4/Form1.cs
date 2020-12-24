@@ -30,6 +30,7 @@ namespace LR4
             public int lineY1;
             public int lineY2;
             public Color clr = Color.Black;
+            public int type = 0;
         }
 
         public class CircleStorage // Класс-хранилище фигур
@@ -131,7 +132,7 @@ namespace LR4
 
         CircleStorage stor = new CircleStorage();
 
-        public class GropedFigures
+        public class GropedFigures : CCircle
         {
             public CCircle[] arr = new CCircle[1000];
             public int i = 0;
@@ -145,6 +146,39 @@ namespace LR4
                 }
                 else
                     return;
+            }
+        }
+
+        public void Draw(CCircle circle, Color clr)
+        {
+            Pen mPen = new Pen(clr, 3);
+            SolidBrush brush = new SolidBrush(clr);
+            Rectangle rect = new Rectangle(circle.x - circle.r / 2, circle.y - circle.r / 2, circle.r, circle.r);
+            Rectangle dot = new Rectangle(circle.x, circle.y, 2, 2);
+            switch (circle.figure)
+            {
+                case 0:
+                    this.panel1.CreateGraphics().DrawEllipse(mPen, rect);
+                    break;
+                case 1:
+                    this.panel1.CreateGraphics().DrawRectangle(mPen, rect);
+                    break;
+                case 2:
+                    this.panel1.CreateGraphics().DrawPolygon(mPen, new PointF[] { new PointF(circle.x - circle.r / 2, circle.y + circle.r / 2), new PointF(circle.x + circle.r / 2, circle.y + circle.r / 2), new PointF(circle.x, circle.y - circle.r / 2) });
+                    break;
+                case 3:
+                    if (stor.readyLine >= 0)
+                        panel1.CreateGraphics().FillEllipse(brush, dot);
+                    else
+                    {
+                        this.panel1.CreateGraphics().DrawLine(mPen, circle.lineX1, circle.lineY1, circle.lineX2, circle.lineY2);
+                        panel1.CreateGraphics().FillEllipse(brush, circle.lineX1, circle.lineY1, 2, 2);
+                        panel1.CreateGraphics().FillEllipse(brush, circle.lineX2, circle.lineY2, 2, 2);
+                    }
+                    break;
+                case 4:
+                    panel1.CreateGraphics().FillEllipse(brush, dot);
+                    break;
             }
         }
 
@@ -163,57 +197,11 @@ namespace LR4
                     {
                         if (stor.arr[j].flag)
                         {
-                            Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                            Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                            switch (stor.arr[j].figure)
-                            {
-                                case 0:
-                                    this.panel1.CreateGraphics().DrawEllipse(aPen, rect);
-                                    break;
-                                case 1:
-                                    this.panel1.CreateGraphics().DrawRectangle(aPen, rect);
-                                    break;
-                                case 2:
-                                    this.panel1.CreateGraphics().DrawPolygon(aPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                    break;
-                                case 3:
-                                    if (stor.readyLine >= 0)
-                                        panel1.CreateGraphics().FillEllipse(Brushes.Red, dot);
-                                    else
-                                        this.panel1.CreateGraphics().DrawLine(aPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                                    break;
-                                case 4:
-                                    panel1.CreateGraphics().FillEllipse(Brushes.Red, dot);
-                                    break;
-                            }
+                            Draw(stor.arr[j], Color.Red);
                         }
                         else
                         {
-                            Pen mPen = new Pen(stor.arr[j].clr, 3);
-                            SolidBrush brush = new SolidBrush(stor.arr[j].clr);
-                            Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                            Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                            switch (stor.arr[j].figure)
-                            {
-                                case 0:
-                                    this.panel1.CreateGraphics().DrawEllipse(mPen, rect);
-                                    break;
-                                case 1:
-                                    this.panel1.CreateGraphics().DrawRectangle(mPen, rect);
-                                    break;
-                                case 2:
-                                    this.panel1.CreateGraphics().DrawPolygon(mPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                    break;
-                                case 3:
-                                    if (stor.readyLine >= 0)
-                                        panel1.CreateGraphics().FillEllipse(brush, dot);
-                                    else
-                                        this.panel1.CreateGraphics().DrawLine(mPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                                    break;
-                                case 4:
-                                    panel1.CreateGraphics().FillEllipse(brush, dot);
-                                    break;
-                            }
+                            Draw(stor.arr[j], stor.arr[j].clr);
                         }
                     }
                 }
@@ -248,32 +236,8 @@ namespace LR4
                         {
                             if (j != (stor.i - 1)) // Снятие выделения с других объектов и отрисовка их
                             {
-                                Pen mPen = new Pen(stor.arr[j].clr, 3);
-                                SolidBrush brush = new SolidBrush(stor.arr[j].clr);
                                 stor.arr[j].flag = false;
-                                Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                                Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                                switch (stor.arr[j].figure)
-                                {
-                                    case 0:
-                                        this.panel1.CreateGraphics().DrawEllipse(mPen, rect);
-                                        break;
-                                    case 1:
-                                        this.panel1.CreateGraphics().DrawRectangle(mPen, rect);
-                                        break;
-                                    case 2:
-                                        this.panel1.CreateGraphics().DrawPolygon(mPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                        break;
-                                    case 3:
-                                        if (stor.readyLine >= 0)
-                                            panel1.CreateGraphics().FillEllipse(brush, dot);
-                                        else
-                                            this.panel1.CreateGraphics().DrawLine(mPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                                        break;
-                                    case 4:
-                                        panel1.CreateGraphics().FillEllipse(brush, dot);
-                                        break;
-                                }
+                                Draw(stor.arr[j], stor.arr[j].clr);
                             }
                             else // Выделение нового объекта и его отрисовка
                             {
@@ -325,30 +289,7 @@ namespace LR4
                 {
                     if (stor.arr[j].flag == true)
                     {
-                        Pen wPen = new Pen(Color.White, 3);
-                        Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                        Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                        switch (stor.arr[j].figure)
-                        {
-                            case 0:
-                                this.panel1.CreateGraphics().DrawEllipse(wPen, rect);
-                                break;
-                            case 1:
-                                this.panel1.CreateGraphics().DrawRectangle(wPen, rect);
-                                break;
-                            case 2:
-                                this.panel1.CreateGraphics().DrawPolygon(wPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                break;
-                            case 3:
-                                if (stor.readyLine >= 0)
-                                    panel1.CreateGraphics().FillEllipse(Brushes.White, dot);
-                                else
-                                    this.panel1.CreateGraphics().DrawLine(wPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                                break;
-                            case 4:
-                                panel1.CreateGraphics().FillEllipse(Brushes.White, dot);
-                                break;
-                        }
+                        Draw(stor.arr[j], Color.White);
                         stor.arr[j] = null;
                     }
                 }
@@ -357,31 +298,7 @@ namespace LR4
             {
                 if (stor.arr[j] != null)
                 {
-                    Pen mPen = new Pen(stor.arr[j].clr, 3);
-                    SolidBrush brush = new SolidBrush(stor.arr[j].clr);
-                    Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r/2, stor.arr[j].y - stor.arr[j].r/2, stor.arr[j].r, stor.arr[j].r);
-                    Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                    switch (stor.arr[j].figure)
-                    {
-                        case 0:
-                            this.panel1.CreateGraphics().DrawEllipse(mPen, rect);
-                            break;
-                        case 1:
-                            this.panel1.CreateGraphics().DrawRectangle(mPen, rect);
-                            break;
-                        case 2:
-                            this.panel1.CreateGraphics().DrawPolygon(mPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                            break;
-                        case 3:
-                            if (stor.readyLine >= 0)
-                                panel1.CreateGraphics().FillEllipse(brush, dot);
-                            else
-                                this.panel1.CreateGraphics().DrawLine(mPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                            break;
-                        case 4:
-                            panel1.CreateGraphics().FillEllipse(brush, dot);
-                            break;
-                    }
+                    Draw(stor.arr[j], stor.arr[j].clr);
                 }
             }
         }
@@ -394,35 +311,9 @@ namespace LR4
                 {
                     if (stor.arr[j].flag == true)
                     {
-                        Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                        Pen wPen = new Pen(Color.White, 3);
-                        switch (stor.arr[j].figure)
-                        {
-                            case 0:
-                                this.panel1.CreateGraphics().DrawEllipse(wPen, stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                                stor.arr[j].r = Convert.ToInt32(numericUpDown1.Value);
-                                this.panel1.CreateGraphics().DrawEllipse(aPen, stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                                break;
-                            case 1:
-                                this.panel1.CreateGraphics().DrawRectangle(wPen, stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                                stor.arr[j].r = Convert.ToInt32(numericUpDown1.Value);
-                                this.panel1.CreateGraphics().DrawRectangle(aPen, stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                                break;
-                            case 2:
-                                this.panel1.CreateGraphics().DrawPolygon(wPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                stor.arr[j].r = Convert.ToInt32(numericUpDown1.Value);
-                                this.panel1.CreateGraphics().DrawPolygon(aPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                break;
-                            case 3:
-                                if (stor.readyLine >= 0)
-                                    panel1.CreateGraphics().FillEllipse(Brushes.Red, dot);
-                                else
-                                    this.panel1.CreateGraphics().DrawLine(aPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                                break;
-                            case 4:
-                                panel1.CreateGraphics().FillEllipse(Brushes.Red, dot);
-                                break;
-                        }
+                        Draw(stor.arr[j], Color.White);
+                        stor.arr[j].r = Convert.ToInt32(numericUpDown1.Value);
+                        Draw(stor.arr[j], Color.Red);
                     }
                 }
             }
@@ -430,31 +321,7 @@ namespace LR4
             {
                 if (stor.arr[j] != null && stor.arr[j].flag == false)
                 {
-                    Pen mPen = new Pen(stor.arr[j].clr, 3);
-                    SolidBrush brush = new SolidBrush(stor.arr[j].clr);
-                    Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                    Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                    switch (stor.arr[j].figure)
-                    {
-                        case 0:
-                            this.panel1.CreateGraphics().DrawEllipse(mPen, rect);
-                            break;
-                        case 1:
-                            this.panel1.CreateGraphics().DrawRectangle(mPen, rect);
-                            break;
-                        case 2:
-                            this.panel1.CreateGraphics().DrawPolygon(mPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                            break;
-                        case 3:
-                            if (stor.readyLine >= 0)
-                                panel1.CreateGraphics().FillEllipse(brush, dot);
-                            else
-                                this.panel1.CreateGraphics().DrawLine(mPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                            break;
-                        case 4:
-                            panel1.CreateGraphics().FillEllipse(brush, dot);
-                            break;
-                    }
+                    Draw(stor.arr[j], stor.arr[j].clr);
                 }
             }
         }
@@ -471,31 +338,7 @@ namespace LR4
                         if (stor.arr[j].flag == true)
                         {
                             stor.arr[j].clr = colorDialog1.Color;
-                            Pen wPen = new Pen(colorDialog1.Color, 3);
-                            SolidBrush brush = new SolidBrush(colorDialog1.Color);
-                            Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                            Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                            switch (stor.arr[j].figure)
-                            {
-                                case 0:
-                                    this.panel1.CreateGraphics().DrawEllipse(wPen, rect);
-                                    break;
-                                case 1:
-                                    this.panel1.CreateGraphics().DrawRectangle(wPen, rect);
-                                    break;
-                                case 2:
-                                    this.panel1.CreateGraphics().DrawPolygon(wPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                    break;
-                                case 3:
-                                    if (stor.readyLine >= 0)
-                                        panel1.CreateGraphics().FillEllipse(brush, dot);
-                                    else
-                                        this.panel1.CreateGraphics().DrawLine(wPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                                    break;
-                                case 4:
-                                    panel1.CreateGraphics().FillEllipse(brush, dot);
-                                    break;
-                            }
+                            Draw(stor.arr[j], stor.arr[j].clr);
                         }
                     }
                 }
@@ -511,60 +354,16 @@ namespace LR4
                     {
                         if ((stor.readyLine == -1) && (stor.arr[j].lineY1 > 0) && (stor.arr[j].lineY2 > 0))
                         {
-                            Pen wPen = new Pen(Color.White, 3);
-                            this.panel1.CreateGraphics().DrawLine(wPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                            stor.arr[j].lineY1--;
+                            Draw(stor.arr[j], Color.White);
                             stor.arr[j].lineY2--;
-                            this.panel1.CreateGraphics().DrawLine(aPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
+                            Draw(stor.arr[j], Color.Red);
                         }
                     }
                     else if (stor.arr[j].y - (stor.arr[j].r / 2) > 0)
                     {
-                        Pen wPen = new Pen(Color.White, 3);
-                        Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                        Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                        switch (stor.arr[j].figure)
-                        {
-                            case 0:
-                                this.panel1.CreateGraphics().DrawEllipse(wPen, rect);
-                                break;
-                            case 1:
-                                this.panel1.CreateGraphics().DrawRectangle(wPen, rect);
-                                break;
-                            case 2:
-                                this.panel1.CreateGraphics().DrawPolygon(wPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                break;
-                            case 3:
-                                if (stor.readyLine >= 0)
-                                    panel1.CreateGraphics().FillEllipse(Brushes.White, dot);
-                                else
-                                    this.panel1.CreateGraphics().DrawLine(wPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                                break;
-                            case 4:
-                                panel1.CreateGraphics().FillEllipse(Brushes.White, dot);
-                                break;
-                        }
+                        Draw(stor.arr[j], Color.White);
                         stor.arr[j].y--;
-                        rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                        dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                        switch (stor.arr[j].figure)
-                        {
-                            case 0:
-                                this.panel1.CreateGraphics().DrawEllipse(aPen, rect);
-                                break;
-                            case 1:
-                                this.panel1.CreateGraphics().DrawRectangle(aPen, rect);
-                                break;
-                            case 2:
-                                this.panel1.CreateGraphics().DrawPolygon(aPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                break;
-                            case 3:
-                                panel1.CreateGraphics().FillEllipse(Brushes.Red, dot);
-                                break;
-                            case 4:
-                                panel1.CreateGraphics().FillEllipse(Brushes.Red, dot);
-                                break;
-                        }
+                        Draw(stor.arr[j], Color.Red);
                     }
                 }
             }
@@ -572,31 +371,7 @@ namespace LR4
             {
                 if (stor.arr[j] != null && stor.arr[j].flag == false)
                 {
-                    Pen mPen = new Pen(stor.arr[j].clr, 3);
-                    SolidBrush brush = new SolidBrush(stor.arr[j].clr);
-                    Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                    Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                    switch (stor.arr[j].figure)
-                    {
-                        case 0:
-                            this.panel1.CreateGraphics().DrawEllipse(mPen, rect);
-                            break;
-                        case 1:
-                            this.panel1.CreateGraphics().DrawRectangle(mPen, rect);
-                            break;
-                        case 2:
-                            this.panel1.CreateGraphics().DrawPolygon(mPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                            break;
-                        case 3:
-                            if (stor.readyLine >= 0)
-                                panel1.CreateGraphics().FillEllipse(brush, dot);
-                            else
-                                this.panel1.CreateGraphics().DrawLine(mPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                            break;
-                        case 4:
-                            panel1.CreateGraphics().FillEllipse(brush, dot);
-                            break;
-                    }
+                    Draw(stor.arr[j], stor.arr[j].clr);
                 }
             }
         }
@@ -611,60 +386,17 @@ namespace LR4
                     {
                         if ((stor.readyLine == -1) && (stor.arr[j].lineY1 < panel1.Height - 4) && (stor.arr[j].lineY2 < panel1.Height - 4))
                         {
-                            Pen wPen = new Pen(Color.White, 3);
-                            this.panel1.CreateGraphics().DrawLine(wPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
+                            Draw(stor.arr[j], Color.White);
                             stor.arr[j].lineY1++;
                             stor.arr[j].lineY2++;
-                            this.panel1.CreateGraphics().DrawLine(aPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
+                            Draw(stor.arr[j], Color.Red);
                         }
                     }
                     else if (stor.arr[j].y + (stor.arr[j].r / 2) < panel1.Height - 4)
                     {
-                        Pen wPen = new Pen(Color.White, 3);
-                        Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                        Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                        switch (stor.arr[j].figure)
-                        {
-                            case 0:
-                                this.panel1.CreateGraphics().DrawEllipse(wPen, rect);
-                                break;
-                            case 1:
-                                this.panel1.CreateGraphics().DrawRectangle(wPen, rect);
-                                break;
-                            case 2:
-                                this.panel1.CreateGraphics().DrawPolygon(wPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                break;
-                            case 3:
-                                if (stor.readyLine >= 0)
-                                    panel1.CreateGraphics().FillEllipse(Brushes.White, dot);
-                                else
-                                    this.panel1.CreateGraphics().DrawLine(wPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                                break;
-                            case 4:
-                                panel1.CreateGraphics().FillEllipse(Brushes.White, dot);
-                                break;
-                        }
+                        Draw(stor.arr[j], Color.White);
                         stor.arr[j].y++;
-                        rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                        dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                        switch (stor.arr[j].figure)
-                        {
-                            case 0:
-                                this.panel1.CreateGraphics().DrawEllipse(aPen, rect);
-                                break;
-                            case 1:
-                                this.panel1.CreateGraphics().DrawRectangle(aPen, rect);
-                                break;
-                            case 2:
-                                this.panel1.CreateGraphics().DrawPolygon(aPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                break;
-                            case 3:
-                                panel1.CreateGraphics().FillEllipse(Brushes.Red, dot);
-                                break;
-                            case 4:
-                                panel1.CreateGraphics().FillEllipse(Brushes.Red, dot);
-                                break;
-                        }
+                        Draw(stor.arr[j], Color.Red);
                     }
                 }
             }
@@ -672,31 +404,7 @@ namespace LR4
             {
                 if (stor.arr[j] != null && stor.arr[j].flag == false)
                 {
-                    Pen mPen = new Pen(stor.arr[j].clr, 3);
-                    SolidBrush brush = new SolidBrush(stor.arr[j].clr);
-                    Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                    Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                    switch (stor.arr[j].figure)
-                    {
-                        case 0:
-                            this.panel1.CreateGraphics().DrawEllipse(mPen, rect);
-                            break;
-                        case 1:
-                            this.panel1.CreateGraphics().DrawRectangle(mPen, rect);
-                            break;
-                        case 2:
-                            this.panel1.CreateGraphics().DrawPolygon(mPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                            break;
-                        case 3:
-                            if (stor.readyLine >= 0)
-                                panel1.CreateGraphics().FillEllipse(brush, dot);
-                            else
-                                this.panel1.CreateGraphics().DrawLine(mPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                            break;
-                        case 4:
-                            panel1.CreateGraphics().FillEllipse(brush, dot);
-                            break;
-                    }
+                    Draw(stor.arr[j], stor.arr[j].clr);
                 }
             }
         }
@@ -711,60 +419,16 @@ namespace LR4
                     {
                         if ((stor.readyLine == -1) && (stor.arr[j].lineX1 > 0) && (stor.arr[j].lineX2 > 0))
                         {
-                            Pen wPen = new Pen(Color.White, 3);
-                            this.panel1.CreateGraphics().DrawLine(wPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                            stor.arr[j].lineX1--;
+                            Draw(stor.arr[j], Color.White); stor.arr[j].lineX1--;
                             stor.arr[j].lineX2--;
-                            this.panel1.CreateGraphics().DrawLine(aPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
+                            Draw(stor.arr[j], Color.Red);
                         }
                     }
                     else if (stor.arr[j].x - (stor.arr[j].r / 2) > 0)
                     {
-                        Pen wPen = new Pen(Color.White, 3);
-                        Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                        Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                        switch (stor.arr[j].figure)
-                        {
-                            case 0:
-                                this.panel1.CreateGraphics().DrawEllipse(wPen, rect);
-                                break;
-                            case 1:
-                                this.panel1.CreateGraphics().DrawRectangle(wPen, rect);
-                                break;
-                            case 2:
-                                this.panel1.CreateGraphics().DrawPolygon(wPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                break;
-                            case 3:
-                                if (stor.readyLine >= 0)
-                                    panel1.CreateGraphics().FillEllipse(Brushes.White, dot);
-                                else
-                                    this.panel1.CreateGraphics().DrawLine(wPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                                break;
-                            case 4:
-                                panel1.CreateGraphics().FillEllipse(Brushes.White, dot);
-                                break;
-                        }
+                        Draw(stor.arr[j], Color.White);
                         stor.arr[j].x--;
-                        rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                        dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                        switch (stor.arr[j].figure)
-                        {
-                            case 0:
-                                this.panel1.CreateGraphics().DrawEllipse(aPen, rect);
-                                break;
-                            case 1:
-                                this.panel1.CreateGraphics().DrawRectangle(aPen, rect);
-                                break;
-                            case 2:
-                                this.panel1.CreateGraphics().DrawPolygon(aPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                break;
-                            case 3:
-                                panel1.CreateGraphics().FillEllipse(Brushes.Red, dot);
-                                break;
-                            case 4:
-                                panel1.CreateGraphics().FillEllipse(Brushes.Red, dot);
-                                break;
-                        }
+                        Draw(stor.arr[j], Color.Red);
                     }
                 }
             }
@@ -772,31 +436,7 @@ namespace LR4
             {
                 if (stor.arr[j] != null && stor.arr[j].flag == false)
                 {
-                    Pen mPen = new Pen(stor.arr[j].clr, 3);
-                    SolidBrush brush = new SolidBrush(stor.arr[j].clr);
-                    Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                    Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                    switch (stor.arr[j].figure)
-                    {
-                        case 0:
-                            this.panel1.CreateGraphics().DrawEllipse(mPen, rect);
-                            break;
-                        case 1:
-                            this.panel1.CreateGraphics().DrawRectangle(mPen, rect);
-                            break;
-                        case 2:
-                            this.panel1.CreateGraphics().DrawPolygon(mPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                            break;
-                        case 3:
-                            if (stor.readyLine >= 0)
-                                panel1.CreateGraphics().FillEllipse(brush, dot);
-                            else
-                                this.panel1.CreateGraphics().DrawLine(mPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                            break;
-                        case 4:
-                            panel1.CreateGraphics().FillEllipse(brush, dot);
-                            break;
-                    }
+                    Draw(stor.arr[j], stor.arr[j].clr);
                 }
             }
         }
@@ -811,60 +451,16 @@ namespace LR4
                     {
                         if ((stor.readyLine == -1) && (stor.arr[j].lineX1 < panel1.Height - 44) && (stor.arr[j].lineX2 < panel1.Height - 44))
                         {
-                            Pen wPen = new Pen(Color.White, 3);
-                            this.panel1.CreateGraphics().DrawLine(wPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                            stor.arr[j].lineX1++;
+                            Draw(stor.arr[j], Color.White); stor.arr[j].lineX1++;
                             stor.arr[j].lineX2++;
-                            this.panel1.CreateGraphics().DrawLine(aPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
+                            Draw(stor.arr[j], Color.Red);
                         }
                     }
                     else if (stor.arr[j].x + (stor.arr[j].r / 2) < panel1.Height - 44)
                     {
-                        Pen wPen = new Pen(Color.White, 3);
-                        Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                        Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                        switch (stor.arr[j].figure)
-                        {
-                            case 0:
-                                this.panel1.CreateGraphics().DrawEllipse(wPen, rect);
-                                break;
-                            case 1:
-                                this.panel1.CreateGraphics().DrawRectangle(wPen, rect);
-                                break;
-                            case 2:
-                                this.panel1.CreateGraphics().DrawPolygon(wPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                break;
-                            case 3:
-                                if (stor.readyLine >= 0)
-                                    panel1.CreateGraphics().FillEllipse(Brushes.White, dot);
-                                else
-                                    this.panel1.CreateGraphics().DrawLine(wPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                                break;
-                            case 4:
-                                panel1.CreateGraphics().FillEllipse(Brushes.White, dot);
-                                break;
-                        }
+                        Draw(stor.arr[j], Color.White);
                         stor.arr[j].x++;
-                        rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                        dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                        switch (stor.arr[j].figure)
-                        {
-                            case 0:
-                                this.panel1.CreateGraphics().DrawEllipse(aPen, rect);
-                                break;
-                            case 1:
-                                this.panel1.CreateGraphics().DrawRectangle(aPen, rect);
-                                break;
-                            case 2:
-                                this.panel1.CreateGraphics().DrawPolygon(aPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                                break;
-                            case 3:
-                                panel1.CreateGraphics().FillEllipse(Brushes.Red, dot);
-                                break;
-                            case 4:
-                                panel1.CreateGraphics().FillEllipse(Brushes.Red, dot);
-                                break;
-                        }
+                        Draw(stor.arr[j], Color.Red);
                     }
                 }
             }
@@ -872,31 +468,7 @@ namespace LR4
             {
                 if (stor.arr[j] != null && stor.arr[j].flag == false)
                 {
-                    Pen mPen = new Pen(stor.arr[j].clr, 3);
-                    SolidBrush brush = new SolidBrush(stor.arr[j].clr);
-                    Rectangle rect = new Rectangle(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y - stor.arr[j].r / 2, stor.arr[j].r, stor.arr[j].r);
-                    Rectangle dot = new Rectangle(stor.arr[j].x, stor.arr[j].y, 2, 2);
-                    switch (stor.arr[j].figure)
-                    {
-                        case 0:
-                            this.panel1.CreateGraphics().DrawEllipse(mPen, rect);
-                            break;
-                        case 1:
-                            this.panel1.CreateGraphics().DrawRectangle(mPen, rect);
-                            break;
-                        case 2:
-                            this.panel1.CreateGraphics().DrawPolygon(mPen, new PointF[] { new PointF(stor.arr[j].x - stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x + stor.arr[j].r / 2, stor.arr[j].y + stor.arr[j].r / 2), new PointF(stor.arr[j].x, stor.arr[j].y - stor.arr[j].r / 2) });
-                            break;
-                        case 3:
-                            if (stor.readyLine >= 0)
-                                panel1.CreateGraphics().FillEllipse(brush, dot);
-                            else
-                                this.panel1.CreateGraphics().DrawLine(mPen, stor.arr[j].lineX1, stor.arr[j].lineY1, stor.arr[j].lineX2, stor.arr[j].lineY2);
-                            break;
-                        case 4:
-                            panel1.CreateGraphics().FillEllipse(brush, dot);
-                            break;
-                    }
+                    Draw(stor.arr[j], stor.arr[j].clr);
                 }
             }
         }
@@ -908,11 +480,14 @@ namespace LR4
 
         private void Button7_Click(object sender, EventArgs e)
         {
+            GropedFigures group = new GropedFigures();
             for (int j = 0; j < stor.i; j++)
             {
                 if (stor.arr[j] != null && stor.arr[j].flag == true)
                 {
-
+                    group.AddGroup(stor.arr[j]);
+                    stor.arr[j] = null;
+                    stor.AddStor(group);
                 }
             }
         }
