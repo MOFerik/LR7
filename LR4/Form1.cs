@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace LR4
 {
@@ -35,6 +36,27 @@ namespace LR4
             public virtual int IfGroup()
             {
                 return 0;
+            }
+
+            public virtual void Save()
+            {
+                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt", this.IfGroup() + " ");
+                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt", this.figure + " ");
+                if (this.figure == 3)
+                {
+                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt", this.lineX1 + " ");
+                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.lineX2 + " ");
+                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.lineY1 + " ");
+                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.lineY2 + " ");
+                }
+                else
+                {
+                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.x + " ");
+                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.y + " ");
+                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.r + " ");
+                }
+                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.clr + " ");
+                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.flag + " ");
             }
         }
 
@@ -126,7 +148,11 @@ namespace LR4
 
             public void SaveStor()
             {
-
+                File.WriteAllText(@"C:\Users\deadp\Desktop\save.txt", this.arr.Count + " ");
+                for (int i = 0; i < this.arr.Count; i++)
+                {
+                    this.arr[i].Save();
+                }
             }
 
             public void LoadStor()
@@ -147,6 +173,16 @@ namespace LR4
             public override int IfGroup()
             {
                 return 1;
+            }
+
+            public override void Save()
+            {
+                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.IfGroup() + " ");
+                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.arr.Count + " ");
+                for (int i = 0; i < this.arr.Count; i++)
+                {
+                    this.arr[i].Save();
+                }
             }
         }
 
@@ -688,7 +724,23 @@ namespace LR4
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            for (int j = 0; j < stor.arr.Count; j++)
+            {
+                if (stor.arr[j].flag)
+                {
+                    if (stor.arr[j].IfGroup() == 0)
+                        Draw(stor.arr[j], Color.Red);
+                    else
+                        DrawGroup(stor.arr[j], Color.Red);
+                }
+                else
+                {
+                    if (stor.arr[j].IfGroup() == 0)
+                        Draw(stor.arr[j], stor.arr[j].clr);
+                    else
+                        DrawGroup(stor.arr[j], stor.arr[j].clr);
+                }
+            }
         }
 
         private void Button7_Click(object sender, EventArgs e)
@@ -733,9 +785,15 @@ namespace LR4
                             stor.arr.Add(stor.arr[j].arr[i]);
                         }
                         stor.arr.Remove(stor.arr[j]);
+                        j--;
                     }
                 }
             }
+        }
+
+        private void Button9_Click(object sender, EventArgs e)
+        {
+            stor.SaveStor();
         }
     }
 }
