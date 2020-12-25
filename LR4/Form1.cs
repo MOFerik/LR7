@@ -20,6 +20,7 @@ namespace LR4
 
         public class CCircle // Класс фигур
         {
+            public List<CCircle> arr = new List<CCircle>();
             public int x;
             public int y;
             public int r = 60;
@@ -30,7 +31,11 @@ namespace LR4
             public int lineY1;
             public int lineY2;
             public Color clr = Color.Black;
-            public int type = 0;
+
+            public virtual int IfGroup()
+            {
+                return 0;
+            }
         }
 
         public class CircleStorage // Класс-хранилище фигур
@@ -43,8 +48,9 @@ namespace LR4
                     return 0;
             }
 
-            public CCircle[] arr = new CCircle[1000];
-            public int i = 0;
+            public List<CCircle> arr = new List<CCircle>();
+            /*public CCircle[] arr = new CCircle[1000];
+            public int i = 0;*/
 
             public int readyLine = -1;
 
@@ -54,14 +60,14 @@ namespace LR4
             public bool Check(int x, int y) // Функция проверки нажатия на объект
             {
                 select = false;
-                for (int j = 0; j < this.i; j++)
+                for (int j = 0; j < this.arr.Count; j++)
                 {
                     if (this.arr[j] != null && this.arr[j].figure != 3)
                     {
                         if (this.arr[j] != null && x > this.arr[j].x - this.arr[j].r / 2 && x < this.arr[j].x + this.arr[j].r / 2 && y > this.arr[j].y - this.arr[j].r / 2 && y < this.arr[j].y + this.arr[j].r / 2)
                         {
                             if (ModifierKeys.HasFlag(Keys.Control) != true) // Если контрол не нажат
-                                for (int k = 0; k < this.i; k++) // Снятие выделения с остальных объектов
+                                for (int k = 0; k < this.arr.Count; k++) // Снятие выделения с остальных объектов
                                 {
                                     if (this.arr[k] != null && this.arr[k].figure != 3)
                                     {
@@ -85,7 +91,7 @@ namespace LR4
                         if (this.arr[j] != null && !(x > this.arr[j].lineX1 && x > this.arr[j].lineX2) && !(y > this.arr[j].lineY1 && y > this.arr[j].lineY2) && !(x < this.arr[j].lineX1 && x < this.arr[j].lineX2) && !(y < this.arr[j].lineY1 && y < this.arr[j].lineY2) && div((x - this.arr[j].lineX1), (y - this.arr[j].lineY1)) == div((this.arr[j].lineX2 - this.arr[j].lineX1), (this.arr[j].lineY2 - this.arr[j].lineY1)))
                         {
                             if (ModifierKeys.HasFlag(Keys.Control) != true) // Если контрол не нажат
-                                for (int k = 0; k < this.i; k++) // Снятие выделения с остальных объектов
+                                for (int k = 0; k < this.arr.Count; k++) // Снятие выделения с остальных объектов
                                 {
                                     if (this.arr[k] != null && this.arr[k].figure != 3)
                                     {
@@ -110,13 +116,7 @@ namespace LR4
 
             public void AddStor(CCircle circ) // Добавление созданного объекта в хранилище
             {
-                if (i < 1000)
-                {
-                    arr[i] = circ;
-                    i++;
-                }
-                else
-                    return;
+                arr.Add(circ);
             }
 
             public void SaveStor()
@@ -132,20 +132,16 @@ namespace LR4
 
         CircleStorage stor = new CircleStorage();
 
-        public class GropedFigures : CCircle
+        public class GroupedFigures : CCircle
         {
-            public CCircle[] arr = new CCircle[1000];
-            public int i = 0;
-
             public void AddGroup(CCircle circ) // Добавление созданного объекта в хранилище
             {
-                if (i < 1000)
-                {
-                    arr[i] = circ;
-                    i++;
-                }
-                else
-                    return;
+                arr.Add(circ);
+            }
+
+            public override int IfGroup()
+            {
+                return 1;
             }
         }
 
@@ -182,6 +178,46 @@ namespace LR4
             }
         }
 
+        public void DrawGroup(CCircle group, Color clr)
+        {
+            for (int i = 0; i < group.arr.Count; i++)
+            {
+                if (clr != Color.Red && clr != Color.White)
+                {
+                    clr = group.arr[i].clr;
+                }
+                Pen mPen = new Pen(clr, 3);
+                SolidBrush brush = new SolidBrush(clr);
+                Rectangle rect = new Rectangle(group.arr[i].x - group.arr[i].r / 2, group.arr[i].y - group.arr[i].r / 2, group.arr[i].r, group.arr[i].r);
+                Rectangle dot = new Rectangle(group.arr[i].x, group.arr[i].y, 2, 2);
+                switch (group.arr[i].figure)
+                {
+                    case 0:
+                        this.panel1.CreateGraphics().DrawEllipse(mPen, rect);
+                        break;
+                    case 1:
+                        this.panel1.CreateGraphics().DrawRectangle(mPen, rect);
+                        break;
+                    case 2:
+                        this.panel1.CreateGraphics().DrawPolygon(mPen, new PointF[] { new PointF(group.arr[i].x - group.arr[i].r / 2, group.arr[i].y + group.arr[i].r / 2), new PointF(group.arr[i].x + group.arr[i].r / 2, group.arr[i].y + group.arr[i].r / 2), new PointF(group.arr[i].x, group.arr[i].y - group.arr[i].r / 2) });
+                        break;
+                    case 3:
+                        if (stor.readyLine >= 0)
+                            panel1.CreateGraphics().FillEllipse(brush, dot);
+                        else
+                        {
+                            this.panel1.CreateGraphics().DrawLine(mPen, group.arr[i].lineX1, group.arr[i].lineY1, group.arr[i].lineX2, group.arr[i].lineY2);
+                            panel1.CreateGraphics().FillEllipse(brush, group.arr[i].lineX1, group.arr[i].lineY1, 2, 2);
+                            panel1.CreateGraphics().FillEllipse(brush, group.arr[i].lineX2, group.arr[i].lineY2, 2, 2);
+                        }
+                        break;
+                    case 4:
+                        panel1.CreateGraphics().FillEllipse(brush, dot);
+                        break;
+                }
+            }
+        }
+
         Pen aPen = new Pen(Color.Red, 3);
         private void Panel1_MouseClick(object sender, MouseEventArgs e)
         {
@@ -191,19 +227,22 @@ namespace LR4
             }
             if (stor.Check(e.X, e.Y)) // При нажатии на объект
             {
-                for (int j = 0; j < stor.i; j++) // Отрисовка объектов с учетом выделения
+                for (int j = 0; j < stor.arr.Count; j++) // Отрисовка объектов с учетом выделения
                 {
-                    if (stor.arr[j] != null)
-                    {
                         if (stor.arr[j].flag)
                         {
-                            Draw(stor.arr[j], Color.Red);
+                            if (stor.arr[j].IfGroup() == 0)
+                                Draw(stor.arr[j], Color.Red);
+                            else
+                                DrawGroup(stor.arr[j], Color.Red);
                         }
                         else
                         {
-                            Draw(stor.arr[j], stor.arr[j].clr);
+                            if (stor.arr[j].IfGroup() == 0)
+                                Draw(stor.arr[j], stor.arr[j].clr);
+                            else
+                                DrawGroup(stor.arr[j], stor.arr[j].clr);
                         }
-                    }
                 }
             }
             else // При нажатии на холст
@@ -216,28 +255,30 @@ namespace LR4
                 stor.AddStor(circ);
                 if (listBox1.SelectedIndex == 3 && stor.readyLine >= 0)
                 {
-                    stor.arr[stor.i - 1].figure = 3;
+                    stor.arr[stor.arr.Count - 1].figure = 3;
                     Pen wPen = new Pen(Color.White, 3);
                     Rectangle dot = new Rectangle(stor.arr[stor.readyLine].x, stor.arr[stor.readyLine].y, 2, 2);
                     panel1.CreateGraphics().FillEllipse(Brushes.White, dot);
                     this.panel1.CreateGraphics().DrawLine(aPen, circ.x, circ.y, stor.arr[stor.readyLine].x, stor.arr[stor.readyLine].y);
-                    stor.arr[stor.i - 1].lineX1 = stor.arr[stor.i - 1].x;
-                    stor.arr[stor.i - 1].lineY1 = stor.arr[stor.i - 1].y;
-                    stor.arr[stor.i - 1].lineX2 = stor.arr[stor.readyLine].x;
-                    stor.arr[stor.i - 1].lineY2 = stor.arr[stor.readyLine].y;
+                    stor.arr[stor.arr.Count - 1].lineX1 = stor.arr[stor.arr.Count - 1].x;
+                    stor.arr[stor.arr.Count - 1].lineY1 = stor.arr[stor.arr.Count - 1].y;
+                    stor.arr[stor.arr.Count - 1].lineX2 = stor.arr[stor.readyLine].x;
+                    stor.arr[stor.arr.Count - 1].lineY2 = stor.arr[stor.readyLine].y;
 
                     stor.readyLine = -1;
                 }
                 else
                 {
-                    for (int j = 0; j < stor.i; j++)
+                    for (int j = 0; j < stor.arr.Count; j++)
                     {
-                        if (stor.arr[j] != null)
-                        {
-                            if (j != (stor.i - 1)) // Снятие выделения с других объектов и отрисовка их
+
+                            if (j != (stor.arr.Count - 1)) // Снятие выделения с других объектов и отрисовка их
                             {
                                 stor.arr[j].flag = false;
-                                Draw(stor.arr[j], stor.arr[j].clr);
+                                if (stor.arr[j].IfGroup() == 0)
+                                    Draw(stor.arr[j], stor.arr[j].clr);
+                                else
+                                    DrawGroup(stor.arr[j], stor.arr[j].clr);
                             }
                             else // Выделение нового объекта и его отрисовка
                             {
@@ -275,7 +316,6 @@ namespace LR4
                                         break;
                                 }
                             }
-                        }
                     }
                 }
             }
@@ -283,45 +323,58 @@ namespace LR4
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            for (int j = 0; j < stor.i; j++)
+            for (int j = 0; j < stor.arr.Count; j++)
             {
-                if (stor.arr[j] != null)
-                {
                     if (stor.arr[j].flag == true)
                     {
-                        Draw(stor.arr[j], Color.White);
-                        stor.arr[j] = null;
+                        if (stor.arr[j].IfGroup() == 0)
+                            Draw(stor.arr[j], Color.White);
+                        else
+                            DrawGroup(stor.arr[j], Color.White);
+                        stor.arr.Remove(stor.arr[j]);
+                        j--;
                     }
-                }
             }
-            for (int j = 0; j < stor.i; j++)
+            for (int j = 0; j < stor.arr.Count; j++)
             {
-                if (stor.arr[j] != null)
-                {
-                    Draw(stor.arr[j], stor.arr[j].clr);
-                }
+                    if (stor.arr[j].IfGroup() == 0)
+                        Draw(stor.arr[j], stor.arr[j].clr);
+                    else
+                        DrawGroup(stor.arr[j], stor.arr[j].clr);
             }
         }
 
         private void NumericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            for (int j = 0; j < stor.i; j++)
+            for (int j = 0; j < stor.arr.Count; j++)
             {
-                if (stor.arr[j] != null)
+                if (stor.arr[j].flag == true)
                 {
-                    if (stor.arr[j].flag == true)
+                    if (stor.arr[j].IfGroup() == 0)
                     {
                         Draw(stor.arr[j], Color.White);
                         stor.arr[j].r = Convert.ToInt32(numericUpDown1.Value);
                         Draw(stor.arr[j], Color.Red);
                     }
+                    else
+                    {
+                        DrawGroup(stor.arr[j], Color.White);
+                        for (int i = 0; i < stor.arr[j].arr.Count; i++)
+                        {
+                            stor.arr[j].arr[i].r = Convert.ToInt32(numericUpDown1.Value);
+                        }
+                        DrawGroup(stor.arr[j], Color.Red);
+                    }
                 }
             }
-            for (int j = 0; j < stor.i; j++)
+            for (int j = 0; j < stor.arr.Count; j++)
             {
-                if (stor.arr[j] != null && stor.arr[j].flag == false)
+                if (stor.arr[j].flag == false)
                 {
-                    Draw(stor.arr[j], stor.arr[j].clr);
+                    if (stor.arr[j].IfGroup() == 0)
+                        Draw(stor.arr[j], stor.arr[j].clr);
+                    else
+                        DrawGroup(stor.arr[j], stor.arr[j].clr);
                 }
             }
         }
@@ -331,14 +384,22 @@ namespace LR4
             if (colorDialog1.ShowDialog() == DialogResult.OK)
             {
                 panel2.BackColor = colorDialog1.Color;
-                for (int j = 0; j < stor.i; j++)
+                for (int j = 0; j < stor.arr.Count; j++)
                 {
-                    if (stor.arr[j] != null)
+                    if (stor.arr[j].flag == true)
                     {
-                        if (stor.arr[j].flag == true)
+                        if (stor.arr[j].IfGroup() == 0)
                         {
                             stor.arr[j].clr = colorDialog1.Color;
                             Draw(stor.arr[j], stor.arr[j].clr);
+                        }
+                        else
+                        {
+                            for (int i = 0; i < stor.arr[j].arr.Count; i++)
+                            {
+                                stor.arr[j].arr[i].clr = colorDialog1.Color;
+                            }
+                            DrawGroup(stor.arr[j], stor.arr[j].clr);
                         }
                     }
                 }
@@ -346,129 +407,276 @@ namespace LR4
         }
         private void Button3_Click(object sender, EventArgs e)
         {
-            for (int j = 0; j < stor.i; j++)
+            for (int j = 0; j < stor.arr.Count; j++)
             {
-                if (stor.arr[j] != null && stor.arr[j].flag == true)
+                if (stor.arr[j].flag == true)
                 {
-                    if (stor.arr[j].figure == 3)
+                    if (stor.arr[j].IfGroup() == 0)
                     {
-                        if ((stor.readyLine == -1) && (stor.arr[j].lineY1 > 0) && (stor.arr[j].lineY2 > 0))
+                        if (stor.arr[j].figure == 3)
+                        {
+                            if ((stor.readyLine == -1) && (stor.arr[j].lineY1 > 0) && (stor.arr[j].lineY2 > 0))
+                            {
+                                Draw(stor.arr[j], Color.White);
+                                stor.arr[j].lineY1--;
+                                stor.arr[j].lineY2--;
+                                Draw(stor.arr[j], Color.Red);
+                            }
+                        }
+                        else if (stor.arr[j].y - (stor.arr[j].r / 2) > 0)
                         {
                             Draw(stor.arr[j], Color.White);
-                            stor.arr[j].lineY2--;
+                            stor.arr[j].y--;
                             Draw(stor.arr[j], Color.Red);
                         }
                     }
-                    else if (stor.arr[j].y - (stor.arr[j].r / 2) > 0)
+                    else
                     {
-                        Draw(stor.arr[j], Color.White);
-                        stor.arr[j].y--;
-                        Draw(stor.arr[j], Color.Red);
+                        int able = 1;
+                        for (int i = 0; i < stor.arr[j].arr.Count; i++)
+                        {
+                            if (stor.arr[j].figure == 3)
+                            {
+                                if ((stor.readyLine == -1) && !((stor.arr[j].lineY1 > 0) && (stor.arr[j].lineY2 > 0)))
+                                    able = 0;
+                            }
+                            else if (!(stor.arr[j].y - (stor.arr[j].r / 2) > 0))
+                                able = 0;
+                        }
+
+                        if (able == 1)
+                        {
+                            DrawGroup(stor.arr[j], Color.White);
+                            for (int i = 0; i < stor.arr[j].arr.Count; i++)
+                            {
+                                if (stor.arr[j].figure == 3)
+                                {
+                                    stor.arr[j].arr[i].lineY1--;
+                                    stor.arr[j].arr[i].lineY2--;
+                                }
+                                else
+                                    stor.arr[j].arr[i].y--;
+                            }
+                            DrawGroup(stor.arr[j], Color.Red);
+                        }
                     }
                 }
             }
-            for (int j = 0; j < stor.i; j++)
+            for (int j = 0; j < stor.arr.Count; j++)
             {
-                if (stor.arr[j] != null && stor.arr[j].flag == false)
+                if (stor.arr[j].flag == false)
                 {
-                    Draw(stor.arr[j], stor.arr[j].clr);
+                    if (stor.arr[j].IfGroup() == 0)
+                        Draw(stor.arr[j], stor.arr[j].clr);
+                    else
+                        DrawGroup(stor.arr[j], stor.arr[j].clr);
                 }
             }
         }
 
         private void Button4_Click(object sender, EventArgs e)
         {
-            for (int j = 0; j < stor.i; j++)
+            for (int j = 0; j < stor.arr.Count; j++)
             {
-                if (stor.arr[j] != null && stor.arr[j].flag == true)
+                if (stor.arr[j].flag == true)
                 {
-                    if (stor.arr[j].figure == 3)
+                    if (stor.arr[j].IfGroup() == 0)
                     {
-                        if ((stor.readyLine == -1) && (stor.arr[j].lineY1 < panel1.Height - 4) && (stor.arr[j].lineY2 < panel1.Height - 4))
+                        if (stor.arr[j].figure == 3)
+                        {
+                            if ((stor.readyLine == -1) && (stor.arr[j].lineY1 < panel1.Height - 4) && (stor.arr[j].lineY2 < panel1.Height - 4))
+                            {
+                                Draw(stor.arr[j], Color.White);
+                                stor.arr[j].lineY1++;
+                                stor.arr[j].lineY2++;
+                                Draw(stor.arr[j], Color.Red);
+                            }
+                        }
+                        else if (stor.arr[j].y + (stor.arr[j].r / 2) < panel1.Height - 4)
                         {
                             Draw(stor.arr[j], Color.White);
-                            stor.arr[j].lineY1++;
-                            stor.arr[j].lineY2++;
+                            stor.arr[j].y++;
                             Draw(stor.arr[j], Color.Red);
                         }
                     }
-                    else if (stor.arr[j].y + (stor.arr[j].r / 2) < panel1.Height - 4)
+                    else
                     {
-                        Draw(stor.arr[j], Color.White);
-                        stor.arr[j].y++;
-                        Draw(stor.arr[j], Color.Red);
+                        int able = 1;
+                        for (int i = 0; i < stor.arr[j].arr.Count; i++)
+                        {
+                            if (stor.arr[j].figure == 3)
+                            {
+                                if ((stor.readyLine == -1) && !((stor.arr[j].lineY1 < panel1.Height - 4) && (stor.arr[j].lineY2 < panel1.Height - 4)))
+                                    able = 0;
+                            }
+                            else if (!(stor.arr[j].y + (stor.arr[j].r / 2) < panel1.Height - 4))
+                                able = 0;
+                        }
+
+                        if (able == 1)
+                        {
+                            DrawGroup(stor.arr[j], Color.White);
+                            for (int i = 0; i < stor.arr[j].arr.Count; i++)
+                            {
+                                if (stor.arr[j].figure == 3)
+                                {
+                                    stor.arr[j].arr[i].lineY1++;
+                                    stor.arr[j].arr[i].lineY2++;
+                                }
+                                else
+                                    stor.arr[j].arr[i].y++;
+                            }
+                            DrawGroup(stor.arr[j], Color.Red);
+                        }
                     }
                 }
             }
-            for (int j = 0; j < stor.i; j++)
+            for (int j = 0; j < stor.arr.Count; j++)
             {
-                if (stor.arr[j] != null && stor.arr[j].flag == false)
+                if (stor.arr[j].flag == false)
                 {
-                    Draw(stor.arr[j], stor.arr[j].clr);
+                    if (stor.arr[j].IfGroup() == 0)
+                        Draw(stor.arr[j], stor.arr[j].clr);
+                    else
+                        DrawGroup(stor.arr[j], stor.arr[j].clr);
                 }
             }
         }
 
         private void Button5_Click(object sender, EventArgs e)
         {
-            for (int j = 0; j < stor.i; j++)
+            for (int j = 0; j < stor.arr.Count; j++)
             {
-                if (stor.arr[j] != null && stor.arr[j].flag == true)
+                if (stor.arr[j].flag == true)
                 {
-                    if (stor.arr[j].figure == 3)
+                    if (stor.arr[j].IfGroup() == 0)
                     {
-                        if ((stor.readyLine == -1) && (stor.arr[j].lineX1 > 0) && (stor.arr[j].lineX2 > 0))
+                        if (stor.arr[j].figure == 3)
                         {
-                            Draw(stor.arr[j], Color.White); stor.arr[j].lineX1--;
-                            stor.arr[j].lineX2--;
+                            if ((stor.readyLine == -1) && (stor.arr[j].lineX1 > 0) && (stor.arr[j].lineX2 > 0))
+                            {
+                                Draw(stor.arr[j], Color.White);
+                                stor.arr[j].lineX2--;
+                                stor.arr[j].lineX1--;
+                                Draw(stor.arr[j], Color.Red);
+                            }
+                        }
+                        else if (stor.arr[j].x - (stor.arr[j].r / 2) > 0)
+                        {
+                            Draw(stor.arr[j], Color.White);
+                            stor.arr[j].x--;
                             Draw(stor.arr[j], Color.Red);
                         }
                     }
-                    else if (stor.arr[j].x - (stor.arr[j].r / 2) > 0)
+                    else
                     {
-                        Draw(stor.arr[j], Color.White);
-                        stor.arr[j].x--;
-                        Draw(stor.arr[j], Color.Red);
+                        int able = 1;
+                        for (int i = 0; i < stor.arr[j].arr.Count; i++)
+                        {
+                            if (stor.arr[j].figure == 3)
+                            {
+                                if ((stor.readyLine == -1) && !((stor.arr[j].lineX1 > 0) && (stor.arr[j].lineX2 > 0)))
+                                    able = 0;
+                            }
+                            else if (!(stor.arr[j].x - (stor.arr[j].r / 2) > 0))
+                                able = 0;
+                        }
+
+                        if (able == 1)
+                        {
+                            DrawGroup(stor.arr[j], Color.White);
+                            for (int i = 0; i < stor.arr[j].arr.Count; i++)
+                            {
+                                if (stor.arr[j].figure == 3)
+                                {
+                                    stor.arr[j].arr[i].lineX1--;
+                                    stor.arr[j].arr[i].lineX2--;
+                                }
+                                else
+                                    stor.arr[j].arr[i].x--;
+                            }
+                            DrawGroup(stor.arr[j], Color.Red);
+                        }
                     }
                 }
             }
-            for (int j = 0; j < stor.i; j++)
+            for (int j = 0; j < stor.arr.Count; j++)
             {
-                if (stor.arr[j] != null && stor.arr[j].flag == false)
+                if (stor.arr[j].flag == false)
                 {
-                    Draw(stor.arr[j], stor.arr[j].clr);
+                    if (stor.arr[j].IfGroup() == 0)
+                        Draw(stor.arr[j], stor.arr[j].clr);
+                    else
+                        DrawGroup(stor.arr[j], stor.arr[j].clr);
                 }
             }
         }
 
         private void Button6_Click(object sender, EventArgs e)
         {
-            for (int j = 0; j < stor.i; j++)
+            for (int j = 0; j < stor.arr.Count; j++)
             {
-                if (stor.arr[j] != null && stor.arr[j].flag == true)
+                if (stor.arr[j].flag == true)
                 {
-                    if (stor.arr[j].figure == 3)
+                    if (stor.arr[j].IfGroup() == 0)
                     {
-                        if ((stor.readyLine == -1) && (stor.arr[j].lineX1 < panel1.Height - 44) && (stor.arr[j].lineX2 < panel1.Height - 44))
+                        if (stor.arr[j].figure == 3)
                         {
-                            Draw(stor.arr[j], Color.White); stor.arr[j].lineX1++;
-                            stor.arr[j].lineX2++;
+                            if ((stor.readyLine == -1) && (stor.arr[j].lineX1 < panel1.Height - 44) && (stor.arr[j].lineX2 < panel1.Height - 44))
+                            {
+                                Draw(stor.arr[j], Color.White);
+                                stor.arr[j].lineX2++;
+                                stor.arr[j].lineX1++;
+                                Draw(stor.arr[j], Color.Red);
+                            }
+                        }
+                        else if (stor.arr[j].x + (stor.arr[j].r / 2) < panel1.Height - 44)
+                        {
+                            Draw(stor.arr[j], Color.White);
+                            stor.arr[j].x++;
                             Draw(stor.arr[j], Color.Red);
                         }
                     }
-                    else if (stor.arr[j].x + (stor.arr[j].r / 2) < panel1.Height - 44)
+                    else
                     {
-                        Draw(stor.arr[j], Color.White);
-                        stor.arr[j].x++;
-                        Draw(stor.arr[j], Color.Red);
+                        int able = 1;
+                        for (int i = 0; i < stor.arr[j].arr.Count; i++)
+                        {
+                            if (stor.arr[j].figure == 3)
+                            {
+                                if ((stor.readyLine == -1) && !((stor.arr[j].lineX1 < panel1.Height - 44) && (stor.arr[j].lineX2 < panel1.Height - 44)))
+                                    able = 0;
+                            }
+                            else if (!(stor.arr[j].x + (stor.arr[j].r / 2) < panel1.Height - 44))
+                                able = 0;
+                        }
+
+                        if (able == 1)
+                        {
+                            DrawGroup(stor.arr[j], Color.White);
+                            for (int i = 0; i < stor.arr[j].arr.Count; i++)
+                            {
+                                if (stor.arr[j].figure == 3)
+                                {
+                                    stor.arr[j].arr[i].lineX1++;
+                                    stor.arr[j].arr[i].lineX2++;
+                                }
+                                else
+                                    stor.arr[j].arr[i].x++;
+                            }
+                            DrawGroup(stor.arr[j], Color.Red);
+                        }
                     }
                 }
             }
-            for (int j = 0; j < stor.i; j++)
+            for (int j = 0; j < stor.arr.Count; j++)
             {
-                if (stor.arr[j] != null && stor.arr[j].flag == false)
+                if (stor.arr[j].flag == false)
                 {
-                    Draw(stor.arr[j], stor.arr[j].clr);
+                    if (stor.arr[j].IfGroup() == 0)
+                        Draw(stor.arr[j], stor.arr[j].clr);
+                    else
+                        DrawGroup(stor.arr[j], stor.arr[j].clr);
                 }
             }
         }
@@ -480,14 +688,15 @@ namespace LR4
 
         private void Button7_Click(object sender, EventArgs e)
         {
-            GropedFigures group = new GropedFigures();
-            for (int j = 0; j < stor.i; j++)
+            GroupedFigures group = new GroupedFigures();
+            for (int j = 0; j < stor.arr.Count; j++)
             {
-                if (stor.arr[j] != null && stor.arr[j].flag == true)
+                if (stor.arr[j].flag == true)
                 {
                     group.AddGroup(stor.arr[j]);
-                    stor.arr[j] = null;
+                    stor.arr.Remove(stor.arr[j]);
                     stor.AddStor(group);
+                    j--;
                 }
             }
         }
