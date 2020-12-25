@@ -719,5 +719,23 @@ namespace LR4
             }
             stor.AddStor(group);
         }
+
+        private void Button8_Click(object sender, EventArgs e)
+        {
+            for (int j = 0; j < stor.arr.Count; j++)
+            {
+                if (stor.arr[j].flag == true)
+                {
+                    if (stor.arr[j].IfGroup() == 1)
+                    {
+                        for (int i = 0; i < stor.arr[j].arr.Count; i++)
+                        {
+                            stor.arr.Add(stor.arr[j].arr[i]);
+                        }
+                        stor.arr.Remove(stor.arr[j]);
+                    }
+                }
+            }
+        }
     }
 }
