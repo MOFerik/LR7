@@ -49,8 +49,6 @@ namespace LR4
             }
 
             public List<CCircle> arr = new List<CCircle>();
-            /*public CCircle[] arr = new CCircle[1000];
-            public int i = 0;*/
 
             public int readyLine = -1;
 
@@ -60,56 +58,63 @@ namespace LR4
             public bool Check(int x, int y) // Функция проверки нажатия на объект
             {
                 select = false;
+                List<int> selected = new List<int>();
                 for (int j = 0; j < this.arr.Count; j++)
                 {
-                    if (this.arr[j] != null && this.arr[j].figure != 3)
+                    if (this.arr[j].IfGroup() == 0)
                     {
-                        if (this.arr[j] != null && x > this.arr[j].x - this.arr[j].r / 2 && x < this.arr[j].x + this.arr[j].r / 2 && y > this.arr[j].y - this.arr[j].r / 2 && y < this.arr[j].y + this.arr[j].r / 2)
+                        if (this.arr[j].figure != 3)
                         {
-                            if (ModifierKeys.HasFlag(Keys.Control) != true) // Если контрол не нажат
-                                for (int k = 0; k < this.arr.Count; k++) // Снятие выделения с остальных объектов
-                                {
-                                    if (this.arr[k] != null && this.arr[k].figure != 3)
-                                    {
-                                        if (this.arr[k] != null && !(x > this.arr[k].x - this.arr[k].r / 2 && x < this.arr[k].x + this.arr[k].r / 2 && y > this.arr[k].y - this.arr[k].r / 2 && y < this.arr[k].y + this.arr[k].r / 2))
-                                            this.arr[k].flag = false;
-                                    }
-                                    else
-                                    {
-                                        if (this.arr[k] != null && !(!(x > this.arr[k].lineX1 && x > this.arr[k].lineX2) && !(y > this.arr[k].lineY1 && y > this.arr[k].lineY2) && !(x < this.arr[k].lineX1 && x < this.arr[k].lineX2) && !(y < this.arr[k].lineY1 && y < this.arr[k].lineY2) && div((x - this.arr[k].lineX1), (y - this.arr[k].lineY1)) == div((this.arr[k].lineX2 - this.arr[k].lineX1), (this.arr[k].lineY2 - this.arr[k].lineY1))))
-                                        {
-                                            this.arr[k].flag = false;
-                                        }
-                                    }
-                                }
-                            this.arr[j].flag = true; // Выделение указанного объекта
-                            select = true;
+                            if (x > this.arr[j].x - this.arr[j].r / 2 && x < this.arr[j].x + this.arr[j].r / 2 && y > this.arr[j].y - this.arr[j].r / 2 && y < this.arr[j].y + this.arr[j].r / 2)
+                            {
+                                selected.Add(j);
+                                select = true;
+                            }
+                        }
+                        else
+                        {
+                            if (!(x > this.arr[j].lineX1 && x > this.arr[j].lineX2) && !(y > this.arr[j].lineY1 && y > this.arr[j].lineY2) && !(x < this.arr[j].lineX1 && x < this.arr[j].lineX2) && !(y < this.arr[j].lineY1 && y < this.arr[j].lineY2) && div((x - this.arr[j].lineX1), (y - this.arr[j].lineY1)) == div((this.arr[j].lineX2 - this.arr[j].lineX1), (this.arr[j].lineY2 - this.arr[j].lineY1)))
+                            {
+                                selected.Add(j);
+                                select = true;
+                            }
                         }
                     }
                     else
                     {
-                        if (this.arr[j] != null && !(x > this.arr[j].lineX1 && x > this.arr[j].lineX2) && !(y > this.arr[j].lineY1 && y > this.arr[j].lineY2) && !(x < this.arr[j].lineX1 && x < this.arr[j].lineX2) && !(y < this.arr[j].lineY1 && y < this.arr[j].lineY2) && div((x - this.arr[j].lineX1), (y - this.arr[j].lineY1)) == div((this.arr[j].lineX2 - this.arr[j].lineX1), (this.arr[j].lineY2 - this.arr[j].lineY1)))
+                        for(int q = 0; q < this.arr[j].arr.Count; q++)
                         {
-                            if (ModifierKeys.HasFlag(Keys.Control) != true) // Если контрол не нажат
-                                for (int k = 0; k < this.arr.Count; k++) // Снятие выделения с остальных объектов
+                            if (this.arr[j].arr[q].figure != 3)
+                            {
+                                if (x > this.arr[j].arr[q].x - this.arr[j].arr[q].r / 2 && x < this.arr[j].arr[q].x + this.arr[j].arr[q].r / 2 && y > this.arr[j].arr[q].y - this.arr[j].arr[q].r / 2 && y < this.arr[j].arr[q].y + this.arr[j].arr[q].r / 2)
                                 {
-                                    if (this.arr[k] != null && this.arr[k].figure != 3)
-                                    {
-                                        if (this.arr[k] != null && !(x > this.arr[k].x - this.arr[k].r / 2 && x < this.arr[k].x + this.arr[k].r / 2 && y > this.arr[k].y - this.arr[k].r / 2 && y < this.arr[k].y + this.arr[k].r / 2))
-                                            this.arr[k].flag = false;
-                                    }
-                                    else
-                                    {
-                                        if (this.arr[k] != null && !(!(x > this.arr[k].lineX1 && x > this.arr[k].lineX2) && !(y > this.arr[k].lineY1 && y > this.arr[k].lineY2) && !(x < this.arr[k].lineX1 && x < this.arr[k].lineX2) && !(y < this.arr[k].lineY1 && y < this.arr[k].lineY2) && div((x - this.arr[k].lineX1), (y - this.arr[k].lineY1)) == div((this.arr[k].lineX2 - this.arr[k].lineX1), (this.arr[k].lineY2 - this.arr[k].lineY1))))
-                                        {
-                                            this.arr[k].flag = false;
-                                        }
-                                    }
+                                    selected.Add(j);
+                                    select = true;
+                                    break;
                                 }
-                            this.arr[j].flag = true; // Выделение указанного объекта
-                            select = true;
+                            }
+                            else
+                            {
+                                if (!(x > this.arr[j].arr[q].lineX1 && x > this.arr[j].arr[q].lineX2) && !(y > this.arr[j].arr[q].lineY1 && y > this.arr[j].arr[q].lineY2) && !(x < this.arr[j].arr[q].lineX1 && x < this.arr[j].arr[q].lineX2) && !(y < this.arr[j].arr[q].lineY1 && y < this.arr[j].arr[q].lineY2) && div((x - this.arr[j].arr[q].lineX1), (y - this.arr[j].arr[q].lineY1)) == div((this.arr[j].arr[q].lineX2 - this.arr[j].arr[q].lineX1), (this.arr[j].arr[q].lineY2 - this.arr[j].arr[q].lineY1)))
+                                {
+                                    selected.Add(j);
+                                    select = true;
+                                    break;
+                                }
+                            }
                         }
                     }
+                }
+                if (ModifierKeys.HasFlag(Keys.Control) != true)
+                {
+                    for (int j = 0; j < this.arr.Count; j++)
+                    {
+                        this.arr[j].flag = false;
+                    }
+                }
+                for (int j = 0; j < selected.Count; j++)
+                {
+                    this.arr[selected[j]].flag = true;
                 }
                 return select;
             }
@@ -435,12 +440,12 @@ namespace LR4
                         int able = 1;
                         for (int i = 0; i < stor.arr[j].arr.Count; i++)
                         {
-                            if (stor.arr[j].figure == 3)
+                            if (stor.arr[j].arr[i].figure == 3)
                             {
-                                if ((stor.readyLine == -1) && !((stor.arr[j].lineY1 > 0) && (stor.arr[j].lineY2 > 0)))
+                                if ((stor.readyLine == -1) && !((stor.arr[j].arr[i].lineY1 > 0) && (stor.arr[j].arr[i].lineY2 > 0)))
                                     able = 0;
                             }
-                            else if (!(stor.arr[j].y - (stor.arr[j].r / 2) > 0))
+                            else if (!(stor.arr[j].arr[i].y - (stor.arr[j].arr[i].r / 2) > 0))
                                 able = 0;
                         }
 
@@ -449,7 +454,7 @@ namespace LR4
                             DrawGroup(stor.arr[j], Color.White);
                             for (int i = 0; i < stor.arr[j].arr.Count; i++)
                             {
-                                if (stor.arr[j].figure == 3)
+                                if (stor.arr[j].arr[i].figure == 3)
                                 {
                                     stor.arr[j].arr[i].lineY1--;
                                     stor.arr[j].arr[i].lineY2--;
@@ -504,12 +509,12 @@ namespace LR4
                         int able = 1;
                         for (int i = 0; i < stor.arr[j].arr.Count; i++)
                         {
-                            if (stor.arr[j].figure == 3)
+                            if (stor.arr[j].arr[i].figure == 3)
                             {
-                                if ((stor.readyLine == -1) && !((stor.arr[j].lineY1 < panel1.Height - 4) && (stor.arr[j].lineY2 < panel1.Height - 4)))
+                                if ((stor.readyLine == -1) && !((stor.arr[j].arr[i].lineY1 < panel1.Height - 4) && (stor.arr[j].arr[i].lineY2 < panel1.Height - 4)))
                                     able = 0;
                             }
-                            else if (!(stor.arr[j].y + (stor.arr[j].r / 2) < panel1.Height - 4))
+                            else if (!(stor.arr[j].arr[i].y + (stor.arr[j].arr[i].r / 2) < panel1.Height - 4))
                                 able = 0;
                         }
 
@@ -518,7 +523,7 @@ namespace LR4
                             DrawGroup(stor.arr[j], Color.White);
                             for (int i = 0; i < stor.arr[j].arr.Count; i++)
                             {
-                                if (stor.arr[j].figure == 3)
+                                if (stor.arr[j].arr[i].figure == 3)
                                 {
                                     stor.arr[j].arr[i].lineY1++;
                                     stor.arr[j].arr[i].lineY2++;
@@ -573,12 +578,12 @@ namespace LR4
                         int able = 1;
                         for (int i = 0; i < stor.arr[j].arr.Count; i++)
                         {
-                            if (stor.arr[j].figure == 3)
+                            if (stor.arr[j].arr[i].figure == 3)
                             {
-                                if ((stor.readyLine == -1) && !((stor.arr[j].lineX1 > 0) && (stor.arr[j].lineX2 > 0)))
+                                if ((stor.readyLine == -1) && !((stor.arr[j].arr[i].lineX1 > 0) && (stor.arr[j].arr[i].lineX2 > 0)))
                                     able = 0;
                             }
-                            else if (!(stor.arr[j].x - (stor.arr[j].r / 2) > 0))
+                            else if (!(stor.arr[j].arr[i].x - (stor.arr[j].arr[i].r / 2) > 0))
                                 able = 0;
                         }
 
@@ -587,7 +592,7 @@ namespace LR4
                             DrawGroup(stor.arr[j], Color.White);
                             for (int i = 0; i < stor.arr[j].arr.Count; i++)
                             {
-                                if (stor.arr[j].figure == 3)
+                                if (stor.arr[j].arr[i].figure == 3)
                                 {
                                     stor.arr[j].arr[i].lineX1--;
                                     stor.arr[j].arr[i].lineX2--;
@@ -642,12 +647,12 @@ namespace LR4
                         int able = 1;
                         for (int i = 0; i < stor.arr[j].arr.Count; i++)
                         {
-                            if (stor.arr[j].figure == 3)
+                            if (stor.arr[j].arr[i].figure == 3)
                             {
-                                if ((stor.readyLine == -1) && !((stor.arr[j].lineX1 < panel1.Height - 44) && (stor.arr[j].lineX2 < panel1.Height - 44)))
+                                if ((stor.readyLine == -1) && !((stor.arr[j].arr[i].lineX1 < panel1.Height - 44) && (stor.arr[j].arr[i].lineX2 < panel1.Height - 44)))
                                     able = 0;
                             }
-                            else if (!(stor.arr[j].x + (stor.arr[j].r / 2) < panel1.Height - 44))
+                            else if (!(stor.arr[j].arr[i].x + (stor.arr[j].arr[i].r / 2) < panel1.Height - 44))
                                 able = 0;
                         }
 
@@ -656,7 +661,7 @@ namespace LR4
                             DrawGroup(stor.arr[j], Color.White);
                             for (int i = 0; i < stor.arr[j].arr.Count; i++)
                             {
-                                if (stor.arr[j].figure == 3)
+                                if (stor.arr[j].arr[i].figure == 3)
                                 {
                                     stor.arr[j].arr[i].lineX1++;
                                     stor.arr[j].arr[i].lineX2++;
@@ -693,12 +698,26 @@ namespace LR4
             {
                 if (stor.arr[j].flag == true)
                 {
-                    group.AddGroup(stor.arr[j]);
-                    stor.arr.Remove(stor.arr[j]);
-                    stor.AddStor(group);
-                    j--;
+                    if (stor.arr[j].IfGroup() == 0)
+                    {
+                        group.AddGroup(stor.arr[j]);
+                        stor.arr.Remove(stor.arr[j]);
+                        j--;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < stor.arr[j].arr.Count; i++)
+                        {
+                            group.AddGroup(stor.arr[j].arr[i]);
+                            stor.arr[j].arr.Remove(stor.arr[j].arr[i]);
+                            i--;
+                        }
+                        stor.arr.Remove(stor.arr[j]);
+                        j--;
+                    }
                 }
             }
+            stor.AddStor(group);
         }
     }
 }
