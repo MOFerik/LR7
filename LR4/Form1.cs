@@ -40,23 +40,44 @@ namespace LR4
 
             public virtual void Save()
             {
-                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt", this.IfGroup() + " ");
-                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt", this.figure + " ");
+                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt", this.IfGroup() + "\n");
+                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt", this.figure + "\n");
                 if (this.figure == 3)
                 {
-                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt", this.lineX1 + " ");
-                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.lineX2 + " ");
-                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.lineY1 + " ");
-                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.lineY2 + " ");
+                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt", this.lineX1 + "\n");
+                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.lineX2 + "\n");
+                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.lineY1 + "\n");
+                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.lineY2 + "\n");
                 }
                 else
                 {
-                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.x + " ");
-                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.y + " ");
-                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.r + " ");
+                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.x + "\n");
+                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.y + "\n");
+                    File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.r + "\n");
                 }
-                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.clr + " ");
-                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.flag + " ");
+                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.clr.ToArgb().ToString() + "\n");
+                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.flag + "\n");
+            }
+
+            public virtual void Load(StreamReader reader)
+            {
+                this.figure = Convert.ToInt32(reader.ReadLine());
+                if (this.figure == 3)
+                {
+                    this.lineX1 = Convert.ToInt32(reader.ReadLine());
+                    this.lineX2 = Convert.ToInt32(reader.ReadLine());
+                    this.lineY1 = Convert.ToInt32(reader.ReadLine());
+                    this.lineY2 = Convert.ToInt32(reader.ReadLine());
+                }
+                else
+                {
+                    this.x = Convert.ToInt32(reader.ReadLine());
+                    this.y = Convert.ToInt32(reader.ReadLine());
+                    this.r = Convert.ToInt32(reader.ReadLine());
+                }
+                this.clr = Color.FromArgb(Convert.ToInt32(reader.ReadLine()));
+                this.flag = (reader.ReadLine() == "True");
+                return;
             }
         }
 
@@ -148,7 +169,7 @@ namespace LR4
 
             public void SaveStor()
             {
-                File.WriteAllText(@"C:\Users\deadp\Desktop\save.txt", this.arr.Count + " ");
+                File.WriteAllText(@"C:\Users\deadp\Desktop\save.txt", this.arr.Count + "\n");
                 for (int i = 0; i < this.arr.Count; i++)
                 {
                     this.arr[i].Save();
@@ -157,7 +178,25 @@ namespace LR4
 
             public void LoadStor()
             {
-
+                FileStream ifi = new FileStream(@"C:\Users\deadp\Desktop\save.txt", FileMode.Open);
+                StreamReader reader = new StreamReader(ifi);
+                int count = Convert.ToInt32(reader.ReadLine());
+                for (int i = 0; i < count; i++)
+                {
+                    if (Convert.ToInt32(reader.ReadLine()) == 0)
+                    {
+                        CCircle circ = new CCircle();
+                        circ.Load(reader);
+                        this.AddStor(circ);
+                    }
+                    else
+                    {
+                        GroupedFigures group = new GroupedFigures();
+                        group.Load(reader);
+                        this.AddStor(group);
+                    }
+                }
+                reader.Close();
             }
         }
 
@@ -177,11 +216,25 @@ namespace LR4
 
             public override void Save()
             {
-                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.IfGroup() + " ");
-                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.arr.Count + " ");
+                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.IfGroup() + "\n");
+                File.AppendAllText(@"C:\Users\deadp\Desktop\save.txt",this.arr.Count + "\n");
                 for (int i = 0; i < this.arr.Count; i++)
                 {
                     this.arr[i].Save();
+                }
+            }
+
+            public override void Load(StreamReader reader)
+            {
+                int count = Convert.ToInt32(reader.ReadLine());
+                for (int i = 0; i < count; i++)
+                {
+                    if (Convert.ToInt32(reader.ReadLine()) == 0)
+                    {
+                        CCircle circ = new CCircle();
+                        circ.Load(reader);
+                        this.arr.Add(circ);
+                    }
                 }
             }
         }
@@ -794,6 +847,29 @@ namespace LR4
         private void Button9_Click(object sender, EventArgs e)
         {
             stor.SaveStor();
+        }
+
+        private void Button10_Click(object sender, EventArgs e)
+        {
+            this.panel1.ForeColor = System.Drawing.Color.White;
+            stor.LoadStor();
+            for (int j = 0; j < stor.arr.Count; j++)
+            {
+                if (stor.arr[j].flag)
+                {
+                    if (stor.arr[j].IfGroup() == 0)
+                        Draw(stor.arr[j], Color.Red);
+                    else
+                        DrawGroup(stor.arr[j], Color.Red);
+                }
+                else
+                {
+                    if (stor.arr[j].IfGroup() == 0)
+                        Draw(stor.arr[j], stor.arr[j].clr);
+                    else
+                        DrawGroup(stor.arr[j], stor.arr[j].clr);
+                }
+            }
         }
     }
 }
