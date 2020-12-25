@@ -851,7 +851,11 @@ namespace LR4
 
         private void Button10_Click(object sender, EventArgs e)
         {
-            this.panel1.ForeColor = System.Drawing.Color.White;
+            for(int i = 0; i <stor.arr.Count; i++)
+            {
+                stor.arr[i].flag = true;
+            }
+            Button1_Click(sender, e);
             stor.LoadStor();
             for (int j = 0; j < stor.arr.Count; j++)
             {
